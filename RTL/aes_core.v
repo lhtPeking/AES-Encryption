@@ -67,7 +67,7 @@ module aes_core(
   reg [3 : 0]    muxed_round_nr;
   reg            muxed_ready;
 
-  wire [31 : 0]  keymem_sboxw;
+  wire [31 : 0]  keymem_sboxw; // key memory's sbox word
 
   reg [31 : 0]   muxed_sboxw;
   wire [31 : 0]  new_sboxw;
@@ -110,7 +110,7 @@ module aes_core(
                               );
 
 
-  aes_key_mem keymem( // 实现 AES 密钥扩展（Key Schedule）与储存，每一轮都需要新的密钥来完成轮密钥加
+  aes_key_mem keymem( // 实现 AES 密钥扩展（Key Schedule）与储存，每一轮都需要新的密钥来完成轮密钥加，AES的密钥扩展与明文无关
                      .clk(clk),
                      .reset_n(reset_n),
 
@@ -146,16 +146,17 @@ module aes_core(
   // active low reset. All registers have write enable.
   //----------------------------------------------------------------
   always @ (posedge clk or negedge reset_n)
-    begin: reg_update
+    begin: reg_update // begin: label 是命名块，命名块会在波形图、层次树中作为一个可见的作用域
       if (!reset_n)
-        begin
+        begin // 初始状态
           result_valid_reg  <= 1'b0;
           ready_reg         <= 1'b1;
           aes_core_ctrl_reg <= CTRL_IDLE;
         end
       else
         begin
-          if (result_valid_we)
+          // new变量应该来源于组合逻辑，new早就计算好，等时钟沿到来之后进行reg的更新
+          if (result_valid_we) // Write Enable 写使能，在修改变量前都需要检查一下这个变量对应的WE变量是否为1
             result_valid_reg <= result_valid_new;
 
           if (ready_we)
@@ -174,7 +175,7 @@ module aes_core(
   // that gets access to the sbox.
   //----------------------------------------------------------------
   always @*
-    begin : sbox_mux
+    begin : sbox_mux // 密钥扩展和加解密里用到的s-box可以不同，这里用多路复用的逻辑进行实现
       if (init_state)
         begin
           muxed_sboxw = keymem_sboxw;
@@ -192,7 +193,7 @@ module aes_core(
   // Controls which of the datapaths that get the next signal, have
   // access to the memory as well as the block processing result.
   //----------------------------------------------------------------
-  always @*
+  always @* // enc还是dec的状态决定
     begin : encdec_mux
       enc_next = 1'b0;
       dec_next = 1'b0;
@@ -224,7 +225,9 @@ module aes_core(
   // different submodules to shared resources and interface ports.
   //----------------------------------------------------------------
   always @*
+    // 最关键的状态转移过程块，用于更新new和we变量
     begin : aes_core_ctrl
+      // begin一开始的初始化操作
       init_state        = 1'b0;
       ready_new         = 1'b0;
       ready_we          = 1'b0;
@@ -236,7 +239,7 @@ module aes_core(
       case (aes_core_ctrl_reg)
         CTRL_IDLE:
           begin
-            if (init)
+            if (init) // init控制信号
               begin
                 init_state        = 1'b1;
                 ready_new         = 1'b0;
@@ -246,7 +249,7 @@ module aes_core(
                 aes_core_ctrl_new = CTRL_INIT;
                 aes_core_ctrl_we  = 1'b1;
               end
-            else if (next)
+            else if (next) // next控制信号
               begin
                 init_state        = 1'b0;
                 ready_new         = 1'b0;

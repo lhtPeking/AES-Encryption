@@ -487,7 +487,3 @@ module aes_decipher_block(
     end // decipher_ctrl
 
 endmodule // aes_decipher_block
-
-//======================================================================
-// EOF aes_decipher_block.v
-//======================================================================
