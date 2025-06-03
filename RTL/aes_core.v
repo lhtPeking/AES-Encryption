@@ -10,8 +10,8 @@ module aes_core(
                 input wire            reset_n,
 
                 input wire            encdec,
-                input wire            init,
-                input wire            next,
+                input wire            init, // 控制信号用于控制FSM
+                input wire            next, // 控制信号用于控制FSM
                 output wire           ready,
 
                 input wire [255 : 0]  key, // 128 位时只使用低 128 位
@@ -226,6 +226,7 @@ module aes_core(
   //----------------------------------------------------------------
   always @*
     // 最关键的状态转移过程块，用于更新new和we变量
+    // 这个 FSM 的设计风格是“纯粹控制流状态机”：它不执行加解密或密钥扩展的实际计算，它只负责控制“何时激活哪个子模块”，具体运算都发生在子模块aes_encipher_block, aes_decipher_block, aes_key_mem中
     begin : aes_core_ctrl
       // begin一开始的初始化操作
       init_state        = 1'b0;
@@ -263,14 +264,14 @@ module aes_core(
 
         CTRL_INIT:
           begin
-            init_state = 1'b1;
+            init_state = 1'b1; // 只有在INIT的时候init_state才是1, 组合逻辑sbox_mux由init_state调控进行s-box的切换
 
-            if (key_ready)
+            if (key_ready) // key_ready用于指示密钥扩展是否完成
               begin
                 ready_new         = 1'b1;
                 ready_we          = 1'b1;
                 aes_core_ctrl_new = CTRL_IDLE;
-                aes_core_ctrl_we  = 1'b1;
+                aes_core_ctrl_we  k= 1'b1;
               end
           end
 
@@ -278,7 +279,7 @@ module aes_core(
           begin
             init_state = 1'b0;
 
-            if (muxed_ready)
+            if (muxed_ready) // muxed_ready来源于对enc_ready和dec_ready的多路复用
               begin
                 ready_new         = 1'b1;
                 ready_we          = 1'b1;
@@ -286,7 +287,7 @@ module aes_core(
                 result_valid_we   = 1'b1;
                 aes_core_ctrl_new = CTRL_IDLE;
                 aes_core_ctrl_we  = 1'b1;
-             end
+              end
           end
 
         default:
