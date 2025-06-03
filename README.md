@@ -1,6 +1,6 @@
 # AES Encryption on FPGA Board.
-## 1 项目总体描述
-本项目修改自`0aca1`仓库中的`main`分支，在原有仓库RTL的基础上增加了192bit的加密、译码功能（位于`RTL`文件夹下），并利用UART通信方式实现了FPGA与上位机之间的双向通信.
+## 1 Project Overview
+This project is modified from the `main` branch of the `0aca1` repository. Based on the original RTL design, 192-bit encryption and decryption functionality has been added (located in the `RTL` folder). Additionally, bidirectional communication between the FPGA and the host computer is implemented via UART.
 ## 2 各module的接口信息
 下面从architecture的层级对RTL代码进行分析.
 ### aes_core module
