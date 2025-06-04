@@ -14,7 +14,7 @@ module aes(
            input wire           we,
 
            // Data ports.
-           input wire  [7 : 0]  address,
+           input wire  [7 : 0]  address, // 抽象地址，便于寄存器调度
            input wire  [31 : 0] write_data,
            output wire [31 : 0] read_data
           );

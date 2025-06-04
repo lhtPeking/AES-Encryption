@@ -39,6 +39,7 @@ module uart_aes_top(
   uart_rx uart_rx_inst (
       .clk(clk),
       .rstn(rstn),
+      .baud_tick(baud_tick),
       .rxd(uart_rx),
       .valid(rx_valid),
       .data(rx_byte)
@@ -145,10 +146,10 @@ module uart_aes_top(
         EXEC: begin
           aes_addr <= addr;
           aes_cs <= 1;
-          if (cmd == 8'h01) begin
+          if (cmd == 8'h01) begin // cmd为1的时候执行write
             aes_we <= 1;
             aes_write_data <= data_buf;
-          end else if (cmd == 8'h02) begin
+          end else if (cmd == 8'h02) begin // cmd为0的时候执行read
             tx_cnt <= 0;
           end
         end
