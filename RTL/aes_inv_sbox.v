@@ -4,6 +4,8 @@
 // The inverse AES S-box. Basically a 256 Byte ROM.
 //======================================================================
 
+// 满足：inv_sbox[sbox[x]] = x
+
 module aes_inv_sbox(
                     input wire  [31 : 0] sword,
                     output wire [31 : 0] new_sword
