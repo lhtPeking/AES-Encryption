@@ -31,7 +31,7 @@ module uart_aes_tb;
   localparam BAUD_PERIOD = 104_166; // ~104.166us for 9600 baud @ 1ns resolution
 
   // Task to send one byte over uart_rx
-  task uart_send_byte(input [7:0] data);
+  task uart_send_byte(input [7:0] data); // 注意这是从低位到高位的发送
     integer i;
     begin
       uart_rx = 0; // Start bit

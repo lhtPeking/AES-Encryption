@@ -271,7 +271,7 @@ module aes_core(
                 ready_new         = 1'b1;
                 ready_we          = 1'b1;
                 aes_core_ctrl_new = CTRL_IDLE;
-                aes_core_ctrl_we  k= 1'b1;
+                aes_core_ctrl_we  = 1'b1;
               end
           end
 
